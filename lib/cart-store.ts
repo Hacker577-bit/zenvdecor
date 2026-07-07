@@ -10,6 +10,7 @@ export interface CartItem {
   name: string;
   price: number;
   imageVariant: number;
+  image?: string;
   category: string;
   quantity: number;
 }
@@ -52,6 +53,7 @@ export const useCartStore = create<CartState>()(
                 name: product.name,
                 price: product.price,
                 imageVariant: product.imageVariant,
+                image: product.images?.[0],
                 category: product.category,
                 quantity,
               },

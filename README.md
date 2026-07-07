@@ -33,11 +33,11 @@ lib/                   cart-store.ts (zustand), whatsapp.ts (order message build
 
 Products live in [data/products.ts](data/products.ts) as a plain TypeScript array — no build step or CMS required. Each product needs a unique `id` and `slug`, a `category` (must match a slug in [data/categories.ts](data/categories.ts)), pricing, description, `details` bullet points, `dimensions`, and an `imageVariant` number (used to vary the placeholder gradient/icon).
 
-Product photography is currently a generated placeholder (`components/ProductImage.tsx` — a category-tinted gradient with a botanical icon) so the site looks polished with zero external assets. To swap in real photos:
+Product photography defaults to a generated placeholder (`components/ProductImage.tsx` — a category-tinted gradient with a botanical icon) so the site looks polished with zero external assets. To use your own photos:
 
-1. Add images to `public/products/`.
-2. Add an `image` field to the `Product` type in `lib/types.ts` and product entries.
-3. Replace `<ProductImage />` usages with `next/image` pointing at the new field.
+1. Drop image files into `public/products/` (see `public/products/README.md`).
+2. Add an `images` array to the product entry in `data/products.ts`, e.g. `images: ["/products/monstera-1.jpg"]`.
+3. That's it — `<ProductImage />` automatically renders the real photo (via `next/image`) whenever `images` is set, and falls back to the placeholder otherwise. The first image is used everywhere; extras appear as a thumbnail gallery on the product detail page.
 
 ## Checkout flow
 

@@ -27,6 +27,8 @@ export default function ProductCard({ product }: { product: Product }) {
         <ProductImage
           category={product.category}
           imageVariant={product.imageVariant}
+          image={product.images?.[0]}
+          alt={product.name}
           className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-105"
         />
 

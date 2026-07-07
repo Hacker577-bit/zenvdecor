@@ -20,4 +20,6 @@ export interface Product {
   rating: number;
   reviewCount: number;
   imageVariant: number;
+  /** Optional real product photo(s). Falls back to a generated placeholder when omitted. */
+  images?: string[];
 }

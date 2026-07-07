@@ -26,8 +26,10 @@ export default function ProductDetailClient({
 }) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
   const addItem = useCartStore((s) => s.addItem);
   const category = categories.find((c) => c.slug === product.category);
+  const images = product.images ?? [];
 
   function handleAddToCart() {
     addItem(product, quantity);
@@ -50,13 +52,41 @@ export default function ProductDetailClient({
       </nav>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
-        <div className="aspect-square overflow-hidden rounded-3xl">
-          <ProductImage
-            category={product.category}
-            imageVariant={product.imageVariant}
-            className="h-full w-full"
-            iconClassName="w-1/3 h-1/3"
-          />
+        <div>
+          <div className="aspect-square overflow-hidden rounded-3xl">
+            <ProductImage
+              category={product.category}
+              imageVariant={product.imageVariant}
+              image={images[activeImage]}
+              alt={product.name}
+              className="h-full w-full"
+              iconClassName="w-1/3 h-1/3"
+            />
+          </div>
+          {images.length > 1 && (
+            <div className="mt-3 grid grid-cols-5 gap-3">
+              {images.map((img, i) => (
+                <button
+                  key={img}
+                  onClick={() => setActiveImage(i)}
+                  aria-label={`View image ${i + 1}`}
+                  className={`aspect-square overflow-hidden rounded-xl ring-2 transition-all cursor-pointer ${
+                    activeImage === i
+                      ? "ring-forest"
+                      : "ring-transparent hover:ring-sand-dark"
+                  }`}
+                >
+                  <ProductImage
+                    category={product.category}
+                    imageVariant={product.imageVariant}
+                    image={img}
+                    alt={`${product.name} thumbnail ${i + 1}`}
+                    className="h-full w-full"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   TreePine,
   Trees,
@@ -61,6 +62,8 @@ const ACCENT_POSITIONS = [
 interface ProductImageProps {
   category: CategorySlug;
   imageVariant: number;
+  image?: string;
+  alt?: string;
   className?: string;
   iconClassName?: string;
 }
@@ -68,6 +71,8 @@ interface ProductImageProps {
 export default function ProductImage({
   category,
   imageVariant,
+  image,
+  alt = "",
   className = "",
   iconClassName = "",
 }: ProductImageProps) {
@@ -75,6 +80,20 @@ export default function ProductImage({
   const theme = CATEGORY_THEME[category] ?? CATEGORY_THEME.trees;
   const accentPos = ACCENT_POSITIONS[imageVariant % ACCENT_POSITIONS.length];
   const rotate = (imageVariant % 5) * 3 - 6;
+
+  if (image) {
+    return (
+      <div className={`relative overflow-hidden bg-sand ${className}`}>
+        <Image
+          src={image}
+          alt={alt}
+          fill
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+          className="object-cover"
+        />
+      </div>
+    );
+  }
 
   return (
     <div

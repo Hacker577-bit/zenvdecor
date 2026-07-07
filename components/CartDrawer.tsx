@@ -25,6 +25,8 @@ function CartRow({ item }: { item: CartItem }) {
         <ProductImage
           category={item.category as CategorySlug}
           imageVariant={item.imageVariant}
+          image={item.image}
+          alt={item.name}
           className="h-full w-full"
           iconClassName="w-8 h-8"
         />

@@ -162,6 +162,8 @@ export default function CheckoutPage() {
                     <ProductImage
                       category={item.category as CategorySlug}
                       imageVariant={item.imageVariant}
+                      image={item.image}
+                      alt={item.name}
                       className="h-full w-full"
                       iconClassName="w-6 h-6"
                     />
