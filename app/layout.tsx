@@ -1,0 +1,67 @@
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Inter } from "next/font/google";
+import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import CartDrawer from "@/components/CartDrawer";
+
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  axes: ["opsz", "SOFT", "WONK"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://zenvdecor.example.com"),
+  title: {
+    default: "Zenv Decor — Artificial Plants & Botanical Decor",
+    template: "%s · Zenv Decor",
+  },
+  description:
+    "Lifelike artificial plants, trees & botanical decor for homes and studios that never wilt. Shop bonsai, trees, hanging greenery and planters.",
+  keywords: [
+    "artificial plants",
+    "faux plants",
+    "artificial trees",
+    "home decor",
+    "botanical decor",
+  ],
+  openGraph: {
+    title: "Zenv Decor — Artificial Plants & Botanical Decor",
+    description:
+      "Lifelike artificial plants, trees & botanical decor for homes and studios that never wilt.",
+    type: "website",
+    siteName: "Zenv Decor",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#2f4a3c",
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      className={`${fraunces.variable} ${inter.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col bg-cream text-ink">
+        <Header />
+        <main className="flex-1">{children}</main>
+        <Footer />
+        <CartDrawer />
+      </body>
+    </html>
+  );
+}
