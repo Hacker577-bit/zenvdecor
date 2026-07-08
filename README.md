@@ -9,7 +9,8 @@ An exquisite, deployment-ready storefront for artificial plants, trees and botan
 - **Framer Motion** for scroll-reveal and hover animations
 - **Zustand** for cart state (persisted to `localStorage`)
 - **lucide-react** for icons
-- No database, CMS or payment gateway — product data is a typed catalog in `data/products.ts`, and checkout hands off a formatted order to WhatsApp or email
+- No CMS or payment gateway — product data is a typed catalog in `data/products.ts`, and checkout hands off a formatted order to WhatsApp or email
+- **Postgres** (Neon, via Vercel's dashboard) for order storage, behind a password-protected `/admin` dashboard — see "Managing Orders" below
 
 ## Getting started
 
@@ -23,10 +24,12 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Project structure
 
 ```
-app/                  routes: home, /shop, /product/[slug], /checkout, /about, /contact
+app/                  routes: home, /shop, /product/[slug], /checkout, /about, /contact, /admin
+app/api/               orders (create/list/update), admin/login, admin/logout
 components/            Header, Footer, CartDrawer, ProductCard/Grid, Hero, etc.
 data/                  products.ts, categories.ts — edit these to manage your catalog
-lib/                   cart-store.ts (zustand), whatsapp.ts (order message builder), types.ts, format.ts
+lib/                   cart-store.ts (zustand), whatsapp.ts (order message builder), db.ts (orders), admin-auth.ts, types.ts, format.ts
+middleware.ts          protects /admin behind the login cookie
 ```
 
 ## Managing products
@@ -55,6 +58,38 @@ NEXT_PUBLIC_STORE_EMAIL=hello@yourdomain.com
 
 Copy `.env.example` to `.env.local` and fill these in before deploying.
 
+## Managing orders
+
+Every checkout submission is saved to a Postgres database, in addition to opening the WhatsApp/email handoff. Orders are visible at **`/admin`**, protected by a single shared password.
+
+### 1. Add a database (one-time, in the Vercel dashboard)
+
+1. Open your project on [vercel.com](https://vercel.com) → **Storage** tab → **Create Database** → choose **Postgres** (powered by Neon).
+2. Once created, Vercel automatically adds a `DATABASE_URL` (and related) environment variable to your project — no manual copying needed.
+3. Redeploy (Vercel does this automatically after the storage is linked, or trigger it from the Deployments tab).
+
+The `orders` table is created automatically on first use — there's no separate migration step to run.
+
+### 2. Set the admin password
+
+In your Vercel project → **Settings → Environment Variables**, add:
+
+```
+ADMIN_PASSWORD=<a password only you know>
+```
+
+Redeploy after adding it (env var changes require a new deployment to take effect).
+
+### 3. View and manage orders
+
+Go to `yourdomain.com/admin`, sign in with that password, and you'll see every order — customer details, items, subtotal, and a status dropdown (`new → confirmed → shipped → delivered`, or `cancelled`). Status changes save immediately.
+
+If the database isn't connected yet, checkout still works normally (WhatsApp/email fire as before) — it just won't have anything to show at `/admin` until storage is set up.
+
+### Local development
+
+To test order storage locally, run `vercel link` then `vercel env pull .env.local` (after creating the database in the dashboard) to pull down the real `DATABASE_URL`. Without it, `/api/orders` will fail to save but checkout still completes via WhatsApp/email.
+
 ## Branding
 
 Colors, fonts and copy are placeholders — update to match your brand:
@@ -71,20 +106,22 @@ npm run build
 npm run start
 ```
 
-The production build prerenders every route (home, shop, all product pages, about, contact, checkout) as static HTML — no server runtime dependency.
+The storefront (home, shop, all product pages, about, contact, checkout) prerenders as static HTML. `/admin` and the `/api/*` routes are server-rendered on demand since they talk to the database.
 
 ### Deploy to Vercel
 
 1. Push this repo to GitHub/GitLab/Bitbucket.
 2. Import the repo at [vercel.com/new](https://vercel.com/new).
 3. Add the environment variables from `.env.example` in the Vercel project settings.
-4. Deploy — no additional configuration needed.
+4. Deploy.
+5. Add Postgres storage and set `ADMIN_PASSWORD` as described in "Managing orders" above, then redeploy.
 
 ### Deploy to Netlify
 
 1. Push the repo, then "Add new site" → import from Git.
 2. Build command: `npm run build`. Netlify's Next.js runtime plugin handles the rest automatically.
 3. Add the same environment variables in Site settings → Environment variables.
+4. The one-click Postgres setup above is Vercel-specific. On Netlify, create a database directly at [neon.com](https://neon.com) (free tier) and set its connection string as `DATABASE_URL`.
 
 ## Scripts
 
