@@ -120,6 +120,19 @@ export async function insertOrder(order: NewOrder): Promise<{ id: string }> {
   return { id: rows[0].id as string };
 }
 
+export async function listOrdersByPhone(phone: string): Promise<Order[]> {
+  await ensureSchema();
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return [];
+  const db = sql();
+  const rows = await db`
+    SELECT * FROM orders
+    WHERE regexp_replace(phone, '\D', '', 'g') = ${digits}
+    ORDER BY created_at DESC
+  `;
+  return rows.map(rowToOrder);
+}
+
 export async function listOrders(): Promise<Order[]> {
   await ensureSchema();
   const db = sql();

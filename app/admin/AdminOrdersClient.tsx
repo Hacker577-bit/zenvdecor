@@ -12,22 +12,7 @@ import {
 } from "lucide-react";
 import { formatPrice } from "@/lib/format";
 import type { Order, OrderStatus, PaymentMethod } from "@/lib/db";
-
-const STATUS_OPTIONS: OrderStatus[] = [
-  "new",
-  "confirmed",
-  "shipped",
-  "delivered",
-  "cancelled",
-];
-
-const STATUS_STYLES: Record<OrderStatus, string> = {
-  new: "bg-forest/10 text-forest-dark",
-  confirmed: "bg-gold/20 text-ink",
-  shipped: "bg-terracotta/15 text-terracotta-dark",
-  delivered: "bg-forest text-cream",
-  cancelled: "bg-ink/10 text-ink/50",
-};
+import { STATUS_OPTIONS, STATUS_STYLES } from "@/lib/order-status";
 
 const PAYMENT_LABELS: Record<PaymentMethod, string> = {
   cod: "Cash on Delivery",

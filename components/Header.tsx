@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
+  { href: "/track", label: "Track Order" },
 ];
 
 export default function Header() {

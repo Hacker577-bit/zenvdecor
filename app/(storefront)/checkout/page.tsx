@@ -114,12 +114,22 @@ export default function CheckoutPage() {
             ? "Thanks for your order — we'll confirm delivery details shortly."
             : "Add a few plants to your cart before checking out."}
         </p>
-        <Link
-          href="/shop"
-          className="mt-6 rounded-full bg-forest px-6 py-3 text-sm font-semibold text-cream hover:bg-forest-dark"
-        >
-          {placed ? "Keep shopping" : "Browse the shop"}
-        </Link>
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/shop"
+            className="rounded-full bg-forest px-6 py-3 text-sm font-semibold text-cream hover:bg-forest-dark"
+          >
+            {placed ? "Keep shopping" : "Browse the shop"}
+          </Link>
+          {placed && (
+            <Link
+              href="/track"
+              className="rounded-full border border-forest px-6 py-3 text-sm font-semibold text-forest-dark hover:bg-forest hover:text-cream"
+            >
+              Track your order
+            </Link>
+          )}
+        </div>
       </div>
     );
   }
