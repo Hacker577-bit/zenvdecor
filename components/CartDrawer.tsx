@@ -147,7 +147,7 @@ export default function CartDrawer() {
                     onClick={closeCart}
                     className="flex w-full items-center justify-center rounded-full bg-forest px-6 py-3.5 text-sm font-semibold text-cream transition-colors hover:bg-forest-dark"
                   >
-                    Checkout via WhatsApp
+                    Proceed to Checkout
                   </Link>
                   <p className="mt-3 text-center text-xs text-ink/50">
                     Free delivery on orders over {formatPrice(150)}

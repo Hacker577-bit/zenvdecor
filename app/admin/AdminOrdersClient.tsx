@@ -2,9 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, LogOut, PackageSearch, RefreshCw } from "lucide-react";
+import {
+  ChevronDown,
+  LogOut,
+  PackageSearch,
+  RefreshCw,
+  Truck,
+  Smartphone,
+} from "lucide-react";
 import { formatPrice } from "@/lib/format";
-import type { Order, OrderStatus } from "@/lib/db";
+import type { Order, OrderStatus, PaymentMethod } from "@/lib/db";
 
 const STATUS_OPTIONS: OrderStatus[] = [
   "new",
@@ -20,6 +27,16 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
   shipped: "bg-terracotta/15 text-terracotta-dark",
   delivered: "bg-forest text-cream",
   cancelled: "bg-ink/10 text-ink/50",
+};
+
+const PAYMENT_LABELS: Record<PaymentMethod, string> = {
+  cod: "Cash on Delivery",
+  jazzcash_easypaisa: "JazzCash / EasyPaisa",
+};
+
+const PAYMENT_ICONS: Record<PaymentMethod, typeof Truck> = {
+  cod: Truck,
+  jazzcash_easypaisa: Smartphone,
 };
 
 function formatDate(iso: string): string {
@@ -129,6 +146,13 @@ export default function AdminOrdersClient({
                     >
                       {order.status}
                     </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-sand px-2.5 py-0.5 text-[11px] font-semibold text-ink/60">
+                      {(() => {
+                        const Icon = PAYMENT_ICONS[order.paymentMethod];
+                        return <Icon className="h-3 w-3" strokeWidth={1.5} />;
+                      })()}
+                      {PAYMENT_LABELS[order.paymentMethod]}
+                    </span>
                   </div>
                   <p className="mt-0.5 truncate text-xs text-ink/50">
                     {formatDate(order.createdAt)} · {order.phone}
@@ -154,6 +178,20 @@ export default function AdminOrdersClient({
                       </p>
                       <p className="mt-1 text-ink/80">{order.address}</p>
                     </div>
+                    {order.paymentMethod === "jazzcash_easypaisa" && (
+                      <div>
+                        <p className="text-xs uppercase tracking-wide text-ink/40">
+                          Payment Reference
+                        </p>
+                        <p className="mt-1 text-ink/80">
+                          {order.paymentReference || "—"}
+                        </p>
+                        <p className="mt-0.5 text-xs text-terracotta-dark">
+                          Verify this transaction in your JazzCash/EasyPaisa
+                          account before marking as confirmed.
+                        </p>
+                      </div>
+                    )}
                     {order.notes && (
                       <div>
                         <p className="text-xs uppercase tracking-wide text-ink/40">

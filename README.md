@@ -44,15 +44,17 @@ Product photography defaults to a generated placeholder (`components/ProductImag
 
 ## Checkout flow
 
-There's no payment gateway. The cart builds an itemized order message and:
+Customers choose one of two payment methods at checkout:
 
-- **WhatsApp** — opens `https://wa.me/<number>?text=...` with the order pre-filled
-- **Email** — opens a `mailto:` link with the same order details
+- **Cash on Delivery** — pay when the order arrives, no extra step.
+- **JazzCash / EasyPaisa** — the page shows your payment number and the amount due; the customer sends the transfer themselves in their JazzCash/EasyPaisa app, then enters the transaction ID as a reference. There's no live payment gateway integration (that requires a merchant account with JazzCash/EasyPaisa) — you manually verify the transfer landed before marking the order "confirmed" in `/admin`.
 
-Configure your business WhatsApp number and store email via environment variables (see `.env.example`):
+Either way, the order is saved to the database (see "Managing orders") and a pre-filled email opens as a backup notification.
+
+Configure your JazzCash/EasyPaisa number and store email via environment variables (see `.env.example`):
 
 ```
-NEXT_PUBLIC_WHATSAPP_NUMBER=15551234567   # country code + number, no + or spaces
+NEXT_PUBLIC_PAYMENT_NUMBER=03001234567   # JazzCash/EasyPaisa number shown at checkout
 NEXT_PUBLIC_STORE_EMAIL=hello@yourdomain.com
 ```
 

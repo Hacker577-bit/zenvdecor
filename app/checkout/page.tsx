@@ -2,18 +2,25 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { MessageCircle, Mail, ArrowLeft, Loader2 } from "lucide-react";
+import {
+  Mail,
+  ArrowLeft,
+  Loader2,
+  Truck,
+  Smartphone,
+  Copy,
+  Check,
+} from "lucide-react";
 import { useCartStore, useCartSubtotal } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/format";
 import ProductImage from "@/components/ProductImage";
 import type { CategorySlug } from "@/lib/types";
+import type { PaymentMethod } from "@/lib/db";
 import {
   buildOrderMessage,
-  buildWhatsAppLink,
   buildMailtoLink,
-} from "@/lib/whatsapp";
-
-type Channel = "whatsapp" | "email";
+  PAYMENT_NUMBER,
+} from "@/lib/order-message";
 
 export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
@@ -23,18 +30,41 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
-  const [submitting, setSubmitting] = useState<Channel | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
+  const [paymentReference, setPaymentReference] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [placed, setPlaced] = useState(false);
 
-  const details = { name, phone, address, notes };
+  const details = {
+    name,
+    phone,
+    address,
+    notes,
+    paymentMethod,
+    paymentReference: paymentReference || undefined,
+  };
   const message = buildOrderMessage(items, subtotal, details);
-  const canSubmit = items.length > 0 && name && phone && address;
+  const needsReference =
+    paymentMethod === "jazzcash_easypaisa" && !paymentReference.trim();
+  const canSubmit =
+    items.length > 0 && !!name && !!phone && !!address && !needsReference;
 
-  async function submitOrder(channel: Channel, e: FormEvent) {
+  async function handleCopyNumber() {
+    try {
+      await navigator.clipboard.writeText(PAYMENT_NUMBER);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard unavailable — user can select/copy manually
+    }
+  }
+
+  async function submitOrder(e: FormEvent) {
     e.preventDefault();
     if (!canSubmit || submitting) return;
-    setSubmitting(channel);
+    setSubmitting(true);
     setSaveError(null);
 
     try {
@@ -52,6 +82,8 @@ export default function CheckoutPage() {
             quantity: i.quantity,
           })),
           subtotal,
+          paymentMethod,
+          paymentReference: paymentReference || undefined,
         }),
       });
       if (!res.ok) {
@@ -67,20 +99,15 @@ export default function CheckoutPage() {
 
     setPlaced(true);
     clearCart();
-
-    if (channel === "whatsapp") {
-      window.open(buildWhatsAppLink(message), "_blank", "noopener,noreferrer");
-    } else {
-      window.location.href = buildMailtoLink(message, "New Order — Zenv Decor");
-    }
-    setSubmitting(null);
+    window.location.href = buildMailtoLink(message, "New Order — Zenv Decor");
+    setSubmitting(false);
   }
 
   if (items.length === 0) {
     return (
       <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-24 text-center">
         <h1 className="font-display text-2xl font-semibold text-ink">
-          {placed ? "Order sent!" : "Your cart is empty"}
+          {placed ? "Order placed!" : "Your cart is empty"}
         </h1>
         <p className="mt-2 text-sm text-ink/60">
           {placed
@@ -111,15 +138,12 @@ export default function CheckoutPage() {
         Checkout
       </h1>
       <p className="mt-2 max-w-xl text-sm text-ink/60">
-        We don&apos;t process online payments yet — fill in your details and
-        we&apos;ll confirm your order and delivery over WhatsApp or email.
+        Fill in your details, choose how you&apos;d like to pay, and we&apos;ll
+        confirm your order and delivery shortly.
       </p>
 
       <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-5">
-        <form
-          onSubmit={(e) => submitOrder("whatsapp", e)}
-          className="lg:col-span-3"
-        >
+        <form onSubmit={submitOrder} className="lg:col-span-3">
           <div className="space-y-5 rounded-2xl border border-sand-dark/60 bg-sand/30 p-6">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-ink/80">
@@ -173,40 +197,123 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          <div className="mt-6">
+            <label className="mb-2 block text-sm font-medium text-ink/80">
+              Payment method
+            </label>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("cod")}
+                className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-colors cursor-pointer ${
+                  paymentMethod === "cod"
+                    ? "border-forest bg-forest/5"
+                    : "border-sand-dark hover:bg-sand/40"
+                }`}
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest/10 text-forest">
+                  <Truck className="h-5 w-5" strokeWidth={1.5} />
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold text-ink">
+                    Cash on Delivery
+                  </span>
+                  <span className="block text-xs text-ink/50">
+                    Pay when your order arrives
+                  </span>
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPaymentMethod("jazzcash_easypaisa")}
+                className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-colors cursor-pointer ${
+                  paymentMethod === "jazzcash_easypaisa"
+                    ? "border-forest bg-forest/5"
+                    : "border-sand-dark hover:bg-sand/40"
+                }`}
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest/10 text-forest">
+                  <Smartphone className="h-5 w-5" strokeWidth={1.5} />
+                </span>
+                <span>
+                  <span className="block text-sm font-semibold text-ink">
+                    JazzCash / EasyPaisa
+                  </span>
+                  <span className="block text-xs text-ink/50">
+                    Pay online before delivery
+                  </span>
+                </span>
+              </button>
+            </div>
+
+            {paymentMethod === "jazzcash_easypaisa" && (
+              <div className="mt-4 space-y-4 rounded-xl border border-forest/30 bg-forest/5 p-5">
+                <p className="text-sm text-ink/70">
+                  Send{" "}
+                  <span className="font-display font-semibold text-forest-dark">
+                    {formatPrice(subtotal + (subtotal >= 150 ? 0 : 12))}
+                  </span>{" "}
+                  via JazzCash or EasyPaisa to:
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="rounded-lg bg-cream px-4 py-2.5 font-display text-lg font-semibold tracking-wide text-forest-dark">
+                    {PAYMENT_NUMBER}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyNumber}
+                    aria-label="Copy payment number"
+                    className="flex h-10 w-10 items-center justify-center rounded-lg border border-sand-dark bg-cream text-ink/60 hover:text-forest cursor-pointer"
+                  >
+                    {copied ? (
+                      <Check className="h-4 w-4 text-forest" strokeWidth={1.5} />
+                    ) : (
+                      <Copy className="h-4 w-4" strokeWidth={1.5} />
+                    )}
+                  </button>
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-ink/80">
+                    Transaction ID / reference number
+                  </label>
+                  <input
+                    required
+                    value={paymentReference}
+                    onChange={(e) => setPaymentReference(e.target.value)}
+                    placeholder="e.g. TXN123456789"
+                    className="w-full rounded-xl border border-sand-dark bg-cream px-4 py-3 text-sm focus:border-forest focus:outline-none"
+                  />
+                  <p className="mt-1.5 text-xs text-ink/50">
+                    We&apos;ll verify your payment and confirm your order
+                    shortly after you submit.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
           {saveError && (
             <p className="mt-4 text-xs text-terracotta-dark">{saveError}</p>
           )}
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="submit"
-              disabled={!canSubmit || submitting !== null}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-forest px-6 py-3.5 text-sm font-semibold text-cream transition-colors hover:bg-forest-dark disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {submitting === "whatsapp" ? (
-                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
-              ) : (
-                <MessageCircle className="h-4 w-4" strokeWidth={1.5} />
-              )}
-              Send Order via WhatsApp
-            </button>
-            <button
-              type="button"
-              onClick={(e) => submitOrder("email", e)}
-              disabled={!canSubmit || submitting !== null}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full border border-forest px-6 py-3.5 text-sm font-semibold text-forest-dark transition-colors hover:bg-forest hover:text-cream disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {submitting === "email" ? (
-                <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
-              ) : (
-                <Mail className="h-4 w-4" strokeWidth={1.5} />
-              )}
-              Send via Email
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={!canSubmit || submitting}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-forest px-6 py-3.5 text-sm font-semibold text-cream transition-colors hover:bg-forest-dark disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {submitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
+            ) : (
+              <Mail className="h-4 w-4" strokeWidth={1.5} />
+            )}
+            Place Order
+          </button>
           {!canSubmit && (
             <p className="mt-3 text-xs text-ink/50">
-              Please fill in your name, phone and address to continue.
+              {needsReference
+                ? "Please enter your JazzCash/EasyPaisa transaction reference to continue."
+                : "Please fill in your name, phone and address to continue."}
             </p>
           )}
         </form>

@@ -7,6 +7,8 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
+export type PaymentMethod = "cod" | "jazzcash_easypaisa";
+
 export interface OrderItem {
   name: string;
   price: number;
@@ -23,6 +25,8 @@ export interface Order {
   items: OrderItem[];
   subtotal: number;
   status: OrderStatus;
+  paymentMethod: PaymentMethod;
+  paymentReference: string | null;
 }
 
 export interface NewOrder {
@@ -32,6 +36,8 @@ export interface NewOrder {
   notes?: string;
   items: OrderItem[];
   subtotal: number;
+  paymentMethod: PaymentMethod;
+  paymentReference?: string;
 }
 
 function getConnectionString(): string {
@@ -53,22 +59,27 @@ function sql() {
 
 let schemaReady: Promise<void> | null = null;
 
-function ensureSchema(): Promise<void> {
+async function ensureSchema(): Promise<void> {
   if (!schemaReady) {
     const db = sql();
-    schemaReady = db`
-      CREATE TABLE IF NOT EXISTS orders (
-        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        created_at timestamptz NOT NULL DEFAULT now(),
-        customer_name text NOT NULL,
-        phone text NOT NULL,
-        address text NOT NULL,
-        notes text,
-        items jsonb NOT NULL,
-        subtotal numeric NOT NULL,
-        status text NOT NULL DEFAULT 'new'
-      )
-    `.then(() => undefined);
+    schemaReady = (async () => {
+      await db`
+        CREATE TABLE IF NOT EXISTS orders (
+          id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+          created_at timestamptz NOT NULL DEFAULT now(),
+          customer_name text NOT NULL,
+          phone text NOT NULL,
+          address text NOT NULL,
+          notes text,
+          items jsonb NOT NULL,
+          subtotal numeric NOT NULL,
+          status text NOT NULL DEFAULT 'new'
+        )
+      `;
+      // Added after the initial release — safe to re-run on an existing table.
+      await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method text NOT NULL DEFAULT 'cod'`;
+      await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_reference text`;
+    })();
   }
   return schemaReady;
 }
@@ -84,6 +95,8 @@ function rowToOrder(row: Record<string, unknown>): Order {
     items: row.items as OrderItem[],
     subtotal: Number(row.subtotal),
     status: row.status as OrderStatus,
+    paymentMethod: row.payment_method as PaymentMethod,
+    paymentReference: (row.payment_reference as string | null) ?? null,
   };
 }
 
@@ -91,14 +104,16 @@ export async function insertOrder(order: NewOrder): Promise<{ id: string }> {
   await ensureSchema();
   const db = sql();
   const rows = await db`
-    INSERT INTO orders (customer_name, phone, address, notes, items, subtotal)
+    INSERT INTO orders (customer_name, phone, address, notes, items, subtotal, payment_method, payment_reference)
     VALUES (
       ${order.customerName},
       ${order.phone},
       ${order.address},
       ${order.notes ?? null},
       ${JSON.stringify(order.items)}::jsonb,
-      ${order.subtotal}
+      ${order.subtotal},
+      ${order.paymentMethod},
+      ${order.paymentReference ?? null}
     )
     RETURNING id
   `;

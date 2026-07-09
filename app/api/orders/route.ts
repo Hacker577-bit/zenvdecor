@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { insertOrder, listOrders, type OrderItem } from "@/lib/db";
+import {
+  insertOrder,
+  listOrders,
+  type OrderItem,
+  type PaymentMethod,
+} from "@/lib/db";
 import { ADMIN_SESSION_COOKIE, verifySessionCookie } from "@/lib/admin-auth";
 
 interface OrderPayload {
@@ -10,12 +15,16 @@ interface OrderPayload {
   notes?: string;
   items: OrderItem[];
   subtotal: number;
+  paymentMethod: PaymentMethod;
+  paymentReference?: string;
 }
+
+const VALID_PAYMENT_METHODS: PaymentMethod[] = ["cod", "jazzcash_easypaisa"];
 
 function isValidPayload(body: unknown): body is OrderPayload {
   if (!body || typeof body !== "object") return false;
   const b = body as Record<string, unknown>;
-  return (
+  const validBase =
     typeof b.customerName === "string" &&
     b.customerName.trim().length > 0 &&
     typeof b.phone === "string" &&
@@ -24,8 +33,20 @@ function isValidPayload(body: unknown): body is OrderPayload {
     b.address.trim().length > 0 &&
     Array.isArray(b.items) &&
     b.items.length > 0 &&
-    typeof b.subtotal === "number"
-  );
+    typeof b.subtotal === "number" &&
+    typeof b.paymentMethod === "string" &&
+    VALID_PAYMENT_METHODS.includes(b.paymentMethod as PaymentMethod);
+
+  if (!validBase) return false;
+
+  if (b.paymentMethod === "jazzcash_easypaisa") {
+    return (
+      typeof b.paymentReference === "string" &&
+      b.paymentReference.trim().length > 0
+    );
+  }
+
+  return true;
 }
 
 export async function POST(req: NextRequest) {

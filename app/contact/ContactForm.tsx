@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { Check } from "lucide-react";
-import { buildMailtoLink } from "@/lib/whatsapp";
+import { buildMailtoLink } from "@/lib/order-message";
 
 export default function ContactForm() {
   const [name, setName] = useState("");

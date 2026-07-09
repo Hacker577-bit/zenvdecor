@@ -1,17 +1,25 @@
 import type { CartItem } from "./cart-store";
 import { formatPrice } from "./format";
+import type { PaymentMethod } from "./db";
 
-export const WHATSAPP_NUMBER =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "10000000000";
 export const STORE_EMAIL =
   process.env.NEXT_PUBLIC_STORE_EMAIL || "hello@zenvdecor.com";
+export const PAYMENT_NUMBER =
+  process.env.NEXT_PUBLIC_PAYMENT_NUMBER || "0000000000";
 
 export interface CheckoutDetails {
   name: string;
   phone: string;
   address: string;
   notes?: string;
+  paymentMethod: PaymentMethod;
+  paymentReference?: string;
 }
+
+const PAYMENT_LABELS: Record<PaymentMethod, string> = {
+  cod: "Cash on Delivery",
+  jazzcash_easypaisa: "JazzCash / EasyPaisa",
+};
 
 export function buildOrderMessage(
   items: CartItem[],
@@ -30,14 +38,13 @@ export function buildOrderMessage(
     `Name: ${details.name}`,
     `Phone: ${details.phone}`,
     `Delivery Address: ${details.address}`,
+    `Payment Method: ${PAYMENT_LABELS[details.paymentMethod]}`,
   ];
+  if (details.paymentMethod === "jazzcash_easypaisa" && details.paymentReference) {
+    lines.push(`Payment Reference: ${details.paymentReference}`);
+  }
   if (details.notes) lines.push(`Notes: ${details.notes}`);
   return lines.join("\n");
-}
-
-export function buildWhatsAppLink(message: string): string {
-  const digits = WHATSAPP_NUMBER.replace(/\D/g, "");
-  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 }
 
 export function buildMailtoLink(message: string, subject: string): string {
