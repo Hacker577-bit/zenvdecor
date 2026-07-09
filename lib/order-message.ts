@@ -14,6 +14,7 @@ export interface CheckoutDetails {
   notes?: string;
   paymentMethod: PaymentMethod;
   paymentReference?: string;
+  orderNumber?: number;
 }
 
 const PAYMENT_LABELS: Record<PaymentMethod, string> = {
@@ -27,7 +28,9 @@ export function buildOrderMessage(
   details: CheckoutDetails
 ): string {
   const lines = [
-    "Hello Zenv Decor! I'd like to place an order:",
+    details.orderNumber
+      ? `Hello Zenv Decor! I'd like to place order #${details.orderNumber}:`
+      : "Hello Zenv Decor! I'd like to place an order:",
     "",
     ...items.map(
       (i) => `• ${i.name} x${i.quantity} — ${formatPrice(i.price * i.quantity)}`

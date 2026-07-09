@@ -23,6 +23,7 @@ function formatDate(iso: string): string {
 
 export default function TrackOrderPage() {
   const [phone, setPhone] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +38,10 @@ export default function TrackOrderPage() {
       const res = await fetch("/api/orders/lookup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({
+          phone,
+          orderNumber: orderNumber.trim() || undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -62,24 +66,34 @@ export default function TrackOrderPage() {
           Track My Orders
         </h1>
         <p className="mt-3 text-sm text-ink/60">
-          Enter the phone number you used at checkout to see your order
-          history and current status.
+          Enter the phone number you used at checkout — add your order
+          number too if you have it, to jump straight to that order.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-8 flex gap-3">
-        <input
-          required
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="Your phone number"
-          className="flex-1 rounded-full border border-sand-dark bg-cream px-5 py-3 text-sm focus:border-forest focus:outline-none"
-        />
+      <form onSubmit={handleSubmit} className="mt-8 space-y-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <input
+            required
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Your phone number"
+            className="rounded-full border border-sand-dark bg-cream px-5 py-3 text-sm focus:border-forest focus:outline-none"
+          />
+          <input
+            type="text"
+            inputMode="numeric"
+            value={orderNumber}
+            onChange={(e) => setOrderNumber(e.target.value)}
+            placeholder="Order number (optional), e.g. 1042"
+            className="rounded-full border border-sand-dark bg-cream px-5 py-3 text-sm focus:border-forest focus:outline-none"
+          />
+        </div>
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-forest-dark disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-forest px-6 py-3 text-sm font-semibold text-cream transition-colors hover:bg-forest-dark disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" strokeWidth={1.5} />
@@ -116,6 +130,9 @@ export default function TrackOrderPage() {
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
+                      <p className="font-display text-sm font-semibold text-ink">
+                        Order #{order.orderNumber}
+                      </p>
                       <p className="text-xs text-ink/50">
                         {formatDate(order.createdAt)}
                       </p>

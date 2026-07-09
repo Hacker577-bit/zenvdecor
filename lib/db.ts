@@ -17,6 +17,7 @@ export interface OrderItem {
 
 export interface Order {
   id: string;
+  orderNumber: number;
   createdAt: string;
   customerName: string;
   phone: string;
@@ -79,6 +80,17 @@ async function ensureSchema(): Promise<void> {
       // Added after the initial release — safe to re-run on an existing table.
       await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method text NOT NULL DEFAULT 'cod'`;
       await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_reference text`;
+      await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_number serial`;
+      await db`
+        DO $$
+        BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint WHERE conname = 'orders_order_number_key'
+          ) THEN
+            ALTER TABLE orders ADD CONSTRAINT orders_order_number_key UNIQUE (order_number);
+          END IF;
+        END $$;
+      `;
     })();
   }
   return schemaReady;
@@ -87,6 +99,7 @@ async function ensureSchema(): Promise<void> {
 function rowToOrder(row: Record<string, unknown>): Order {
   return {
     id: row.id as string,
+    orderNumber: Number(row.order_number),
     createdAt: (row.created_at as Date).toString(),
     customerName: row.customer_name as string,
     phone: row.phone as string,
@@ -100,7 +113,9 @@ function rowToOrder(row: Record<string, unknown>): Order {
   };
 }
 
-export async function insertOrder(order: NewOrder): Promise<{ id: string }> {
+export async function insertOrder(
+  order: NewOrder
+): Promise<{ id: string; orderNumber: number }> {
   await ensureSchema();
   const db = sql();
   const rows = await db`
@@ -115,21 +130,34 @@ export async function insertOrder(order: NewOrder): Promise<{ id: string }> {
       ${order.paymentMethod},
       ${order.paymentReference ?? null}
     )
-    RETURNING id
+    RETURNING id, order_number
   `;
-  return { id: rows[0].id as string };
+  return {
+    id: rows[0].id as string,
+    orderNumber: Number(rows[0].order_number),
+  };
 }
 
-export async function listOrdersByPhone(phone: string): Promise<Order[]> {
+export async function findOrdersForCustomer(
+  phone: string,
+  orderNumber?: number
+): Promise<Order[]> {
   await ensureSchema();
   const digits = phone.replace(/\D/g, "");
   if (!digits) return [];
   const db = sql();
-  const rows = await db`
-    SELECT * FROM orders
-    WHERE regexp_replace(phone, '\D', '', 'g') = ${digits}
-    ORDER BY created_at DESC
-  `;
+  const rows = orderNumber
+    ? await db`
+        SELECT * FROM orders
+        WHERE regexp_replace(phone, '\D', '', 'g') = ${digits}
+        AND order_number = ${orderNumber}
+        ORDER BY created_at DESC
+      `
+    : await db`
+        SELECT * FROM orders
+        WHERE regexp_replace(phone, '\D', '', 'g') = ${digits}
+        ORDER BY created_at DESC
+      `;
   return rows.map(rowToOrder);
 }
 

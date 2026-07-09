@@ -36,16 +36,8 @@ export default function CheckoutPage() {
   const [submitting, setSubmitting] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [placed, setPlaced] = useState(false);
+  const [orderNumber, setOrderNumber] = useState<number | null>(null);
 
-  const details = {
-    name,
-    phone,
-    address,
-    notes,
-    paymentMethod,
-    paymentReference: paymentReference || undefined,
-  };
-  const message = buildOrderMessage(items, subtotal, details);
   const needsReference =
     paymentMethod === "jazzcash_easypaisa" && !paymentReference.trim();
   const canSubmit =
@@ -67,6 +59,8 @@ export default function CheckoutPage() {
     setSubmitting(true);
     setSaveError(null);
 
+    let placedOrderNumber: number | undefined;
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -86,7 +80,11 @@ export default function CheckoutPage() {
           paymentReference: paymentReference || undefined,
         }),
       });
-      if (!res.ok) {
+      if (res.ok) {
+        const data = await res.json();
+        placedOrderNumber = data.orderNumber;
+        setOrderNumber(data.orderNumber ?? null);
+      } else {
         setSaveError(
           "We couldn't save your order in our system, but you can still send it below — we'll follow up manually."
         );
@@ -96,6 +94,16 @@ export default function CheckoutPage() {
         "We couldn't save your order in our system, but you can still send it below — we'll follow up manually."
       );
     }
+
+    const message = buildOrderMessage(items, subtotal, {
+      name,
+      phone,
+      address,
+      notes,
+      paymentMethod,
+      paymentReference: paymentReference || undefined,
+      orderNumber: placedOrderNumber,
+    });
 
     setPlaced(true);
     clearCart();
@@ -114,6 +122,20 @@ export default function CheckoutPage() {
             ? "Thanks for your order — we'll confirm delivery details shortly."
             : "Add a few plants to your cart before checking out."}
         </p>
+        {placed && orderNumber && (
+          <div className="mt-5 rounded-2xl border border-forest/30 bg-forest/5 px-6 py-4">
+            <p className="text-xs uppercase tracking-wide text-ink/50">
+              Your order number
+            </p>
+            <p className="mt-1 font-display text-3xl font-semibold text-forest-dark">
+              #{orderNumber}
+            </p>
+            <p className="mt-1.5 text-xs text-ink/50">
+              Save this — use it with your phone number on the Track Order
+              page to check your status.
+            </p>
+          </div>
+        )}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/shop"

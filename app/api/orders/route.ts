@@ -62,8 +62,8 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { id } = await insertOrder(body);
-    return NextResponse.json({ id }, { status: 201 });
+    const { id, orderNumber } = await insertOrder(body);
+    return NextResponse.json({ id, orderNumber }, { status: 201 });
   } catch (err) {
     console.error("Failed to save order:", err);
     return NextResponse.json(

@@ -123,6 +123,9 @@ export default function AdminOrdersClient({
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
+                    <span className="font-display text-sm font-semibold text-terracotta-dark">
+                      #{order.orderNumber}
+                    </span>
                     <p className="font-display text-base font-semibold text-ink">
                       {order.customerName}
                     </p>
