@@ -11,8 +11,9 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { useCartStore, useCartSubtotal } from "@/lib/cart-store";
+import { useCartStore, useCartSubtotal, useCartCount } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/format";
+import { FREE_DELIVERY_MIN_ITEMS, DELIVERY_FEE } from "@/lib/shipping";
 import ProductImage from "@/components/ProductImage";
 import type { CategorySlug } from "@/lib/types";
 import type { PaymentMethod } from "@/lib/db";
@@ -26,6 +27,9 @@ export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clear);
   const subtotal = useCartSubtotal();
+  const itemCount = useCartCount();
+  const qualifiesForFreeDelivery = itemCount >= FREE_DELIVERY_MIN_ITEMS;
+  const deliveryFee = qualifiesForFreeDelivery ? 0 : DELIVERY_FEE;
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
@@ -284,7 +288,7 @@ export default function CheckoutPage() {
                 <p className="text-sm text-ink/70">
                   Send{" "}
                   <span className="font-display font-semibold text-forest-dark">
-                    {formatPrice(subtotal + (subtotal >= 150 ? 0 : 12))}
+                    {formatPrice(subtotal + deliveryFee)}
                   </span>{" "}
                   via JazzCash or EasyPaisa to:
                 </p>
@@ -391,13 +395,20 @@ export default function CheckoutPage() {
               </div>
               <div className="flex justify-between text-ink/60">
                 <span>Delivery</span>
-                <span>{subtotal >= 150 ? "Free" : formatPrice(12)}</span>
+                <span>
+                  {qualifiesForFreeDelivery ? "Free" : formatPrice(DELIVERY_FEE)}
+                </span>
               </div>
+              {!qualifiesForFreeDelivery && (
+                <p className="text-xs text-terracotta-dark">
+                  Add {FREE_DELIVERY_MIN_ITEMS - itemCount} more{" "}
+                  {FREE_DELIVERY_MIN_ITEMS - itemCount === 1 ? "item" : "items"}{" "}
+                  for free delivery
+                </p>
+              )}
               <div className="flex justify-between border-t border-sand-dark/60 pt-2 font-display text-base font-semibold text-forest-dark">
                 <span>Total</span>
-                <span>
-                  {formatPrice(subtotal + (subtotal >= 150 ? 0 : 12))}
-                </span>
+                <span>{formatPrice(subtotal + deliveryFee)}</span>
               </div>
             </div>
           </div>

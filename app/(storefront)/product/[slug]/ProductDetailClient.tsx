@@ -13,6 +13,7 @@ import {
 import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/format";
 import { useCartStore } from "@/lib/cart-store";
+import { FREE_DELIVERY_MIN_ITEMS } from "@/lib/shipping";
 import { categories } from "@/data/categories";
 import ProductImage from "@/components/ProductImage";
 import ProductGrid from "@/components/ProductGrid";
@@ -179,7 +180,7 @@ export default function ProductDetailClient({
           <div className="mt-8 grid grid-cols-1 gap-3 border-t border-sand-dark/60 pt-6 sm:grid-cols-2">
             <div className="flex items-center gap-3 text-sm text-ink/60">
               <Truck className="h-4 w-4 text-forest" strokeWidth={1.5} />
-              Free delivery on orders over {formatPrice(150)}
+              Free delivery on orders of {FREE_DELIVERY_MIN_ITEMS}+ pieces
             </div>
             <div className="flex items-center gap-3 text-sm text-ink/60">
               <ShieldCheck className="h-4 w-4 text-forest" strokeWidth={1.5} />

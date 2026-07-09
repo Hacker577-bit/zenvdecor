@@ -6,9 +6,11 @@ import { Minus, Plus, X, ShoppingBag } from "lucide-react";
 import {
   useCartStore,
   useCartSubtotal,
+  useCartCount,
   type CartItem,
 } from "@/lib/cart-store";
 import { formatPrice } from "@/lib/format";
+import { FREE_DELIVERY_MIN_ITEMS } from "@/lib/shipping";
 import ProductImage from "./ProductImage";
 import type { CategorySlug } from "@/lib/types";
 
@@ -81,6 +83,7 @@ export default function CartDrawer() {
   const closeCart = useCartStore((s) => s.closeCart);
   const items = useCartStore((s) => s.items);
   const subtotal = useCartSubtotal();
+  const itemCount = useCartCount();
 
   return (
     <AnimatePresence>
@@ -150,7 +153,13 @@ export default function CartDrawer() {
                     Proceed to Checkout
                   </Link>
                   <p className="mt-3 text-center text-xs text-ink/50">
-                    Free delivery on orders over {formatPrice(150)}
+                    {itemCount >= FREE_DELIVERY_MIN_ITEMS
+                      ? "You've unlocked free delivery"
+                      : `Add ${FREE_DELIVERY_MIN_ITEMS - itemCount} more ${
+                          FREE_DELIVERY_MIN_ITEMS - itemCount === 1
+                            ? "item"
+                            : "items"
+                        } for free delivery`}
                   </p>
                 </div>
               </>

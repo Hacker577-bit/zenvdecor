@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu, X, ShoppingBag, Leaf, Truck } from "lucide-react";
 import { useCartCount, useCartStore } from "@/lib/cart-store";
+import { FREE_DELIVERY_MIN_ITEMS } from "@/lib/shipping";
 
 const NAV_LINKS = [
   { href: "/shop", label: "Shop" },
@@ -21,7 +22,8 @@ export default function Header() {
     <header className="sticky top-0 z-40">
       <div className="flex items-center justify-center gap-2 bg-forest-dark px-4 py-2 text-center text-[11px] font-medium tracking-wide text-cream/85">
         <Truck className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-        Free delivery on orders over $150 · 30-day hassle-free returns
+        Free delivery on orders of {FREE_DELIVERY_MIN_ITEMS}+ pieces · 30-day
+        hassle-free returns
       </div>
 
       <div className="border-b border-sand-dark/60 bg-cream/90 backdrop-blur supports-backdrop-blur:bg-cream/70">

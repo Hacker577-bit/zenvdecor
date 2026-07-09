@@ -1,7 +1,3 @@
 export function formatPrice(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return `Rs. ${Math.round(value).toLocaleString("en-PK")}`;
 }

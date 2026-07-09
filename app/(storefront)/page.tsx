@@ -7,12 +7,13 @@ import Testimonials from "@/components/Testimonials";
 import Newsletter from "@/components/Newsletter";
 import ProductImage from "@/components/ProductImage";
 import { products } from "@/data/products";
+import { FREE_DELIVERY_MIN_ITEMS } from "@/lib/shipping";
 
 const PERKS = [
   {
     icon: Truck,
     title: "Free Delivery",
-    desc: "On all orders over $150",
+    desc: `On orders of ${FREE_DELIVERY_MIN_ITEMS}+ pieces`,
   },
   {
     icon: Sparkles,
