@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkle } from "lucide-react";
-import ProductImage from "./ProductImage";
 
 export default function Hero() {
   return (
@@ -90,36 +90,13 @@ export default function Hero() {
           className="relative mx-auto w-full max-w-md md:max-w-none"
         >
           <div className="relative aspect-square overflow-hidden rounded-[2rem] shadow-2xl shadow-forest-dark/25 ring-1 ring-cream/40">
-            <ProductImage
-              category="trees"
-              imageVariant={1}
-              className="h-full w-full"
-              iconClassName="w-1/2 h-1/2"
-            />
-          </div>
-          <div
-            className="animate-float-slow absolute -bottom-6 -left-6 hidden aspect-square w-32 overflow-hidden rounded-2xl border-4 border-cream shadow-xl sm:block"
-            style={{ ["--float-rotate" as string]: "-4deg" }}
-          >
-            <ProductImage
-              category="bonsai"
-              imageVariant={5}
-              className="h-full w-full"
-              iconClassName="w-1/2 h-1/2"
-            />
-          </div>
-          <div
-            className="animate-float-slow absolute -right-4 -top-6 hidden aspect-square w-24 overflow-hidden rounded-2xl border-4 border-cream shadow-xl sm:block"
-            style={{
-              ["--float-rotate" as string]: "5deg",
-              animationDelay: "1.4s",
-            }}
-          >
-            <ProductImage
-              category="flowering"
-              imageVariant={8}
-              className="h-full w-full"
-              iconClassName="w-1/2 h-1/2"
+            <Image
+              src="/products/hero-bonsai.jpg"
+              alt="Hand-holding a potted faux bonsai tree"
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+              priority
             />
           </div>
           <div className="absolute -left-3 top-1/3 hidden rounded-2xl bg-cream px-4 py-3 shadow-xl sm:flex sm:flex-col sm:items-center">
