@@ -1,10 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { categories } from "@/data/categories";
-import ProductImage from "./ProductImage";
+import type { CategorySlug } from "@/lib/types";
+
+const CATEGORY_PHOTOS: Record<CategorySlug, string> = {
+  bonsai: "/products/hero-bonsai.jpg",
+  flowering: "/products/honey-petals.jpg",
+  succulents: "/products/emerald-spike.jpg",
+};
 
 export default function CategoryStrip() {
   return (
@@ -20,7 +27,7 @@ export default function CategoryStrip() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {categories.map((cat, i) => (
           <motion.div
             key={cat.slug}
@@ -33,11 +40,12 @@ export default function CategoryStrip() {
               href={`/shop?category=${cat.slug}`}
               className="group relative block aspect-3/4 overflow-hidden rounded-2xl shadow-sm ring-1 ring-ink/5 transition-shadow duration-300 hover:shadow-xl hover:shadow-forest-dark/20"
             >
-              <ProductImage
-                category={cat.slug}
-                imageVariant={i}
-                className="h-full w-full transition-transform duration-500 ease-out group-hover:scale-110"
-                iconClassName="w-1/3 h-1/3"
+              <Image
+                src={CATEGORY_PHOTOS[cat.slug]}
+                alt={cat.name}
+                fill
+                sizes="(min-width: 640px) 33vw, 100vw"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
               />
               <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 bg-linear-to-t from-ink/70 via-ink/10 to-transparent p-3.5 pt-10">
                 <span className="font-display text-sm font-medium leading-tight text-cream">

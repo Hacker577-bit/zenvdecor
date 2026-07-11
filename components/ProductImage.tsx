@@ -3,31 +3,22 @@
 import Image from "next/image";
 import {
   TreePine,
-  Trees,
   Flower2,
   Leaf,
   Sprout,
-  Vault,
 } from "lucide-react";
 import type { CategorySlug } from "@/lib/types";
 
 const ICONS: Record<CategorySlug, typeof TreePine> = {
-  trees: Trees,
   bonsai: TreePine,
   flowering: Flower2,
-  hanging: Leaf,
   succulents: Sprout,
-  planters: Vault,
 };
 
 const CATEGORY_THEME: Record<
   CategorySlug,
   { gradient: string; glow: string }
 > = {
-  trees: {
-    gradient: "from-forest-light via-forest to-forest-dark",
-    glow: "bg-gold/40",
-  },
   bonsai: {
     gradient: "from-terracotta via-terracotta-dark to-forest-dark",
     glow: "bg-terracotta/30",
@@ -36,17 +27,9 @@ const CATEGORY_THEME: Record<
     gradient: "from-terracotta-dark via-forest-dark to-ink",
     glow: "bg-terracotta/40",
   },
-  hanging: {
-    gradient: "from-forest via-forest-dark to-ink",
-    glow: "bg-forest-light/40",
-  },
   succulents: {
     gradient: "from-forest-light via-forest to-terracotta-dark",
     glow: "bg-gold/30",
-  },
-  planters: {
-    gradient: "from-ink via-forest-dark to-terracotta-dark",
-    glow: "bg-terracotta/30",
   },
 };
 
@@ -77,7 +60,7 @@ export default function ProductImage({
   iconClassName = "",
 }: ProductImageProps) {
   const Icon = ICONS[category] ?? Leaf;
-  const theme = CATEGORY_THEME[category] ?? CATEGORY_THEME.trees;
+  const theme = CATEGORY_THEME[category] ?? CATEGORY_THEME.bonsai;
   const accentPos = ACCENT_POSITIONS[imageVariant % ACCENT_POSITIONS.length];
   const rotate = (imageVariant % 5) * 3 - 6;
 

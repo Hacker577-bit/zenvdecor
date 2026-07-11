@@ -82,6 +82,26 @@ export const products: Product[] = [
     imageVariant: 22,
     images: ["/products/trio-set.jpg"],
   },
+  {
+    id: "p23",
+    slug: "pocket-bonsai",
+    name: "Pocket Bonsai",
+    category: "bonsai",
+    price: 250,
+    description:
+      "A palm-sized faux bonsai with three delicate leaf clusters on a hand-shaped trunk, set in a compact rectangular ceramic pot — sculptural greenery for the smallest spaces.",
+    details: [
+      "Hand-shaped trunk with real-touch leaf clusters",
+      "Compact rectangular ceramic pot",
+      "Fits on a desk, shelf or windowsill",
+    ],
+    dimensions: '6" H x 5" W',
+    badge: "New",
+    rating: 4.9,
+    reviewCount: 3,
+    imageVariant: 23,
+    images: ["/products/hero-bonsai.jpg"],
+  },
 ];
 
 export function getProduct(slug: string): Product | undefined {

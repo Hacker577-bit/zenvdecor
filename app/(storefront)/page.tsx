@@ -1,11 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Truck, Sparkles, Undo2 } from "lucide-react";
 import Hero from "@/components/Hero";
 import CategoryStrip from "@/components/CategoryStrip";
 import ProductGrid from "@/components/ProductGrid";
 import Testimonials from "@/components/Testimonials";
 import Newsletter from "@/components/Newsletter";
-import ProductImage from "@/components/ProductImage";
 import { products } from "@/data/products";
 import { FREE_DELIVERY_MIN_ITEMS } from "@/lib/shipping";
 
@@ -99,11 +99,23 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="order-1 grid grid-cols-2 gap-4 md:order-2">
-            <div className="aspect-3/4 overflow-hidden rounded-2xl shadow-lg shadow-forest-dark/10 ring-1 ring-ink/5">
-              <ProductImage category="hanging" imageVariant={11} className="h-full w-full" iconClassName="w-1/3 h-1/3" />
+            <div className="relative aspect-3/4 overflow-hidden rounded-2xl shadow-lg shadow-forest-dark/10 ring-1 ring-ink/5">
+              <Image
+                src="/products/evergreen-charm.jpg"
+                alt="EverGreen Charm potted plant"
+                fill
+                sizes="(min-width: 768px) 25vw, 50vw"
+                className="object-cover"
+              />
             </div>
-            <div className="mt-8 aspect-3/4 overflow-hidden rounded-2xl shadow-lg shadow-forest-dark/10 ring-1 ring-ink/5">
-              <ProductImage category="flowering" imageVariant={9} className="h-full w-full" iconClassName="w-1/3 h-1/3" />
+            <div className="relative mt-8 aspect-3/4 overflow-hidden rounded-2xl shadow-lg shadow-forest-dark/10 ring-1 ring-ink/5">
+              <Image
+                src="/products/honey-petals.jpg"
+                alt="Honey Petals potted plant"
+                fill
+                sizes="(min-width: 768px) 25vw, 50vw"
+                className="object-cover"
+              />
             </div>
           </div>
         </div>

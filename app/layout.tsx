@@ -20,11 +20,11 @@ export const metadata: Metadata = {
     template: "%s · Zenv Decor",
   },
   description:
-    "Lifelike artificial plants, trees & botanical decor for homes and studios that never wilt. Shop bonsai, trees, hanging greenery and planters.",
+    "Lifelike artificial plants and botanical decor for homes and studios that never wilt. Shop bonsai, flowering arrangements and succulents.",
   keywords: [
     "artificial plants",
     "faux plants",
-    "artificial trees",
+    "bonsai",
     "home decor",
     "botanical decor",
   ],

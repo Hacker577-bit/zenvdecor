@@ -1,10 +1,4 @@
-export type CategorySlug =
-  | "trees"
-  | "bonsai"
-  | "flowering"
-  | "hanging"
-  | "succulents"
-  | "planters";
+export type CategorySlug = "bonsai" | "flowering" | "succulents";
 
 export interface Product {
   id: string;

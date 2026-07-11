@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Leaf, Hammer, Heart } from "lucide-react";
-import ProductImage from "@/components/ProductImage";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -47,12 +47,13 @@ export default function AboutPage() {
               hospitality spaces that refuse to compromise on style.
             </p>
           </div>
-          <div className="aspect-4/3 overflow-hidden rounded-3xl">
-            <ProductImage
-              category="trees"
-              imageVariant={3}
-              className="h-full w-full"
-              iconClassName="w-1/3 h-1/3"
+          <div className="relative aspect-4/3 overflow-hidden rounded-3xl">
+            <Image
+              src="/products/hero-bonsai.jpg"
+              alt="Hand-holding a potted faux bonsai tree"
+              fill
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover"
             />
           </div>
         </div>

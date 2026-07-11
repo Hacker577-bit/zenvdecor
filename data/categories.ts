@@ -4,16 +4,10 @@ export interface Category {
   slug: CategorySlug;
   name: string;
   description: string;
-  icon: "tree" | "bonsai" | "flower" | "hanging" | "succulent" | "planter";
+  icon: "bonsai" | "flower" | "succulent";
 }
 
 export const categories: Category[] = [
-  {
-    slug: "trees",
-    name: "Artificial Trees",
-    description: "Statement floor trees for corners and entryways",
-    icon: "tree",
-  },
   {
     slug: "bonsai",
     name: "Bonsai",
@@ -27,22 +21,10 @@ export const categories: Category[] = [
     icon: "flower",
   },
   {
-    slug: "hanging",
-    name: "Hanging Greenery",
-    description: "Trailing vines and baskets for shelves & ceilings",
-    icon: "hanging",
-  },
-  {
     slug: "succulents",
     name: "Succulents",
     description: "Compact greenery for windowsills and tabletops",
     icon: "succulent",
-  },
-  {
-    slug: "planters",
-    name: "Planters & Vases",
-    description: "Ceramic, rattan and stone vessels to complete the look",
-    icon: "planter",
   },
 ];
 

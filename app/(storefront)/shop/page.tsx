@@ -5,7 +5,7 @@ import ShopClient from "./ShopClient";
 export const metadata: Metadata = {
   title: "Shop All Plants",
   description:
-    "Browse our full collection of artificial trees, bonsai, flowering arrangements, hanging greenery, succulents and planters.",
+    "Browse our full collection of bonsai, flowering arrangements and succulents.",
 };
 
 export default function ShopPage() {
